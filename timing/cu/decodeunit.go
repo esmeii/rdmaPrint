@@ -2,6 +2,8 @@ package cu
 
 import (
 	"log"
+	"os"
+	"fmt"
 
 	"gitlab.com/akita/akita/v3/sim"
 	"gitlab.com/akita/mgpusim/v3/timing/wavefront"
@@ -55,6 +57,21 @@ func (du *DecodeUnit) AcceptWave(
 	}
 
 	du.toDecode = wave
+	f, err := os.OpenFile("./instDecoding.log", os.O_APPEND|os.O_RDWR, 0755)
+	if err != nil {
+		// Handle the error, such as creating the file if it doesn't exist
+		if os.IsNotExist(err) {
+			f, err = os.Create("instDecoding.log")
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Fatal(err)
+		}
+	}
+
+	defer f.Close()
+	fmt.Fprintf(f, "[Inst Name]=\t%s\t[Inst ID]=\t%d\t[Format Name]=\t%s\n",du.toDecode.Inst().InstName,du.toDecode.Inst().ID,du.toDecode.Inst().FormatName)
 	du.decoded = false
 }
 
