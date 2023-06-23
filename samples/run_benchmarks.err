@@ -1,0 +1,239 @@
+Monitoring simulation with http://localhost:42561
+Monitoring simulation with http://localhost:35259
+Monitoring simulation with http://localhost:33529
+Monitoring simulation with http://localhost:43927
+Monitoring simulation with http://localhost:32891
+panic: /root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/data/train-images-idx3-ubyte.gz not found.
+
+goroutine 126 [running]:
+gitlab.com/akita/dnn/dataset/mnist.openGZip({0xc00019a1c0, 0x63})
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/mnist.go:87 +0x99
+gitlab.com/akita/dnn/dataset/mnist.(*DataSet).OpenTrainingFile(0xc049d15fe0)
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/mnist.go:30 +0x109
+gitlab.com/akita/dnn/dataset/mnist.NewTrainingDataSource({0x1570530?, 0xc037c6d8c0})
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/datasource.go:26 +0xa5
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/lenet.(*Benchmark).createTrainer(0xc049d34180)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/lenet/benchmark.go:118 +0x110
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/lenet.(*Benchmark).init(0xc049d34180)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/lenet/benchmark.go:56 +0x6a
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/lenet.(*Benchmark).Run(0xc049d34180)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/lenet/benchmark.go:185 +0x36
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).Run.func1({0x1569078, 0xc049d34180}, 0x0?)
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:254 +0x6c
+created by gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).Run
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:247 +0x5e
+Monitoring simulation with http://localhost:41707
+panic: memory copy benchmark only support a single GPU
+
+goroutine 1 [running]:
+main.(*Benchmark).SelectGPU(0xc000037c00?, {0xc000032ee0?, 0xa4df80?, 0xc01764df28?})
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/memcopy/main.go:36 +0x58
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).AddBenchmark(0xc0002cec80, {0x13aeca0, 0xc023fb5740})
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:224 +0x4b
+main.main()
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/memcopy/main.go:85 +0x106
+Stage 0, pass 0
+Monitoring simulation with http://localhost:35787
+Monitoring simulation with http://localhost:40549
+Number node 16, number connection 16
+Monitoring simulation with http://localhost:41427
+Monitoring simulation with http://localhost:36417
+Monitoring simulation with http://localhost:33657
+panic: /root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/data/train-images-idx3-ubyte.gz not found.
+
+goroutine 164 [running]:
+gitlab.com/akita/dnn/dataset/mnist.openGZip({0xc00019a1c0, 0x63})
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/mnist.go:87 +0x99
+gitlab.com/akita/dnn/dataset/mnist.(*DataSet).OpenTrainingFile(0xc047cf0160)
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/mnist.go:30 +0x109
+gitlab.com/akita/dnn/dataset/mnist.NewTrainingDataSource({0x156cb10?, 0xc024c17680})
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/mnist/datasource.go:26 +0xa5
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/minerva.(*Benchmark).createTrainer(0xc017301080)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/minerva/benchmark.go:93 +0x110
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/minerva.(*Benchmark).init(0xc017301080)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/minerva/benchmark.go:56 +0x6a
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/minerva.(*Benchmark).Run(0xc017301080)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/minerva/benchmark.go:160 +0x36
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).Run.func1({0x15656d8, 0xc017301080}, 0x0?)
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:254 +0x6c
+created by gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).Run
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:247 +0x5e
+Monitoring simulation with http://localhost:44125
+Monitoring simulation with http://localhost:46117
+Monitoring simulation with http://localhost:44061
+Number of non-zero elements 163
+Monitoring simulation with http://localhost:41531
+Monitoring simulation with http://localhost:35363
+Monitoring simulation with http://localhost:37097
+Monitoring simulation with http://localhost:42507
+panic: multi-GPU is not supported by DNN workloads
+
+goroutine 1 [running]:
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/xor.(*Benchmark).SelectGPU(0x155abc0?, {0xc00023ce80?, 0x155abe0?, 0xc048fbf500?})
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/xor/xor.go:75 +0x3c
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).AddBenchmark(0xc0002d4c80, {0x155fd18, 0xc046712d80})
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:224 +0x4b
+main.main()
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/xor/main.go:20 +0xad
+Monitoring simulation with http://localhost:33653
+panic: Conv2D benchmark can only run on a single GPU for now.
+
+goroutine 1 [running]:
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/conv2d.(*Benchmark).SelectGPU(0xc017fc7f38?, {0xc000032ee0?, 0xc02566d7a0?, 0x0?})
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/conv2d/benchmark.go:53 +0x5c
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).AddBenchmark(0xc0002cec80, {0x155e818, 0xc027f52750})
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:224 +0x4b
+main.main()
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/conv2d/main.go:42 +0x14e
+Monitoring simulation with http://localhost:34497
+Monitoring simulation with http://localhost:38055
+Monitoring simulation with http://localhost:41993
+Monitoring simulation with http://localhost:45805
+panic: BFS does not support multi-GPU execution yet.
+
+goroutine 1 [running]:
+panic: nw does not support multi-GPU mode
+
+goroutine 1 [running]:
+gitlab.com/akita/mgpusim/v3/benchmarks/shoc/bfs.(*Benchmark).SelectGPU(0x918427?, {0xc000032ee0?, 0xc000337f00?, 0xc000337f20?})
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/shoc/bfs/bfs.go:69 +0x5c
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).AddBenchmark(0xc0002ccc80, {0x13b8768, 0xc045375040})
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:224 +0x4b
+main.main()
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/bfs/main.go:38 +0x17d
+gitlab.com/akita/mgpusim/v3/benchmarks/rodinia/nw.(*Benchmark).SelectGPU(0xa?, {0xc000032ee0?, 0xc04857c2bc?, 0xc038ef9f38?})
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/rodinia/nw/benchmark.go:134 +0x5c
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).AddBenchmark(0xc0002ccc80, {0x13afe88, 0xc038f354a0})
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:224 +0x4b
+main.main()
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/nw/main.go:20 +0xb4
+Monitoring simulation with http://localhost:35253
+Stage 0, pass 0
+panic: Im2Col benchmark can only run on a single GPU for now.
+
+goroutine 1 [running]:
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/im2col.(*Benchmark).SelectGPU(0xc0260e1f38?, {0xc000032ee0?, 0xc02612b560?, 0x0?})
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/im2col/benchmark.go:53 +0x5c
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).AddBenchmark(0xc0002cec80, {0x155b718, 0xc0461f3740})
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:224 +0x4b
+main.main()
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/im2col/main.go:42 +0x14f
+Monitoring simulation with http://localhost:40439
+Monitoring simulation with http://localhost:44217
+Monitoring simulation with http://localhost:45233
+Monitoring simulation with http://localhost:34195
+Stage 0, pass 0
+Stage 1, pass 0
+Stage 1, pass 0
+panic: open /root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/imagenet/wnids.txt: no such file or directory
+
+goroutine 156 [running]:
+gitlab.com/akita/dnn/dataset/imagenet.dieOnErr(...)
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/imagenet/imagenet.go:164
+gitlab.com/akita/dnn/dataset/imagenet.NewDataSet(0x1)
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/imagenet/imagenet.go:44 +0x55f
+gitlab.com/akita/dnn/dataset/imagenet.NewTrainingDataSource(...)
+	/root/go_projects/pkg/mod/gitlab.com/akita/dnn@v0.5.4/dataset/imagenet/datasource.go:21
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/vgg16.(*Benchmark).createTrainer(0xc017016180)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/vgg16/benchmark.go:126 +0x195
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/vgg16.(*Benchmark).init(0xc017016180)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/vgg16/benchmark.go:55 +0x6a
+gitlab.com/akita/mgpusim/v3/benchmarks/dnn/vgg16.(*Benchmark).Run(0xc017016180)
+	/root/go_projects/src/rdmaPrint/mgpusim/benchmarks/dnn/vgg16/benchmark.go:193 +0x36
+gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).Run.func1({0x159d548, 0xc017016180}, 0x0?)
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:254 +0x6c
+created by gitlab.com/akita/mgpusim/v3/samples/runner.(*Runner).Run
+	/root/go_projects/src/rdmaPrint/mgpusim/samples/runner/runner.go:247 +0x5e
+Stage 1, pass 0
+Stage 1, pass 1
+Stage 2, pass 0
+Stage 2, pass 1
+Stage 1, pass 1
+Stage 2, pass 2
+Stage 3, pass 0
+Stage 1, pass 1
+Stage 2, pass 0
+Stage 3, pass 1
+Stage 2, pass 1
+Stage 2, pass 2
+Stage 3, pass 0
+Stage 3, pass 1
+Stage 3, pass 2
+Stage 2, pass 0
+Stage 3, pass 2
+Stage 2, pass 1
+Stage 3, pass 3
+Stage 2, pass 2
+Stage 4, pass 0
+Stage 4, pass 1
+Stage 3, pass 0
+Stage 4, pass 2
+Stage 3, pass 1
+Stage 3, pass 3
+Stage 4, pass 3
+Stage 3, pass 2
+Stage 4, pass 4
+Stage 3, pass 3
+Stage 5, pass 0
+Stage 4, pass 0
+Stage 5, pass 1
+Stage 4, pass 0
+Stage 4, pass 1
+Stage 5, pass 2
+Stage 4, pass 2
+Stage 5, pass 3
+Stage 4, pass 3
+Stage 5, pass 4
+Stage 4, pass 4
+Stage 4, pass 1
+Stage 5, pass 5
+Stage 5, pass 0
+Stage 5, pass 1
+Stage 5, pass 2
+Stage 5, pass 3
+Stage 4, pass 2
+Stage 5, pass 4
+Stage 5, pass 5
+Stage 4, pass 3
+Stage 4, pass 4
+Stage 5, pass 0
+Stage 5, pass 1
+Stage 5, pass 2
+Stage 5, pass 3
+Stage 5, pass 4
+Stage 5, pass 5
+Stage 6, pass 0
+Stage 6, pass 1
+Stage 6, pass 2
+Stage 6, pass 3
+Stage 6, pass 4
+Stage 6, pass 5
+Stage 6, pass 6
+Stage 7, pass 0
+Stage 7, pass 1
+Stage 7, pass 2
+Stage 7, pass 3
+Stage 7, pass 4
+Stage 7, pass 5
+Stage 7, pass 6
+Stage 7, pass 7
+Stage 8, pass 0
+Stage 8, pass 1
+Stage 8, pass 2
+Stage 8, pass 3
+Stage 8, pass 4
+Stage 8, pass 5
+Stage 8, pass 6
+Stage 8, pass 7
+Stage 8, pass 8
+Stage 9, pass 0
+Stage 9, pass 1
+Stage 9, pass 2
+Stage 9, pass 3
+Stage 9, pass 4
+Stage 9, pass 5
+Stage 9, pass 6
+Stage 9, pass 7
+Stage 9, pass 8
+Stage 9, pass 9
+GPU iterated 5 times
