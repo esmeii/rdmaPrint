@@ -17,7 +17,6 @@ type transaction struct {
 	toInside    sim.Msg
 	toOutside   sim.Msg
 	sendTime	sim.VTimeInSec
-	recvTime	sim.VTimeInSec
 	addr	 uint64
 }
 
@@ -39,11 +38,15 @@ type Engine struct {
 
 	localModules           mem.LowModuleFinder
 	RemoteRDMAAddressTable mem.LowModuleFinder
+	//ES
+	transactionsTotal []transaction
+
+	l2Latency         sim.VTimeInSec
+	requestQingDelay  sim.VTimeInSec
+	totalLatency      sim.VTimeInSec
 
 	transactionsFromOutside []transaction
 	transactionsFromInside  []transaction
-	transactionEpoch        sim.VTimeInSec
-	transactionEpochRsp	sim.VTimeInSec
 	srcUsageCount       map[string]int
 	dstUsageCount       map[string]int
 	dstGPU                  []string
@@ -67,6 +70,88 @@ func (e *Engine) Tick(now sim.VTimeInSec) bool {
 	madeProgress = e.processFromOutside(now) || madeProgress
 
 	return madeProgress
+}
+
+func (e *Engine) writeFileResolvedRequest(rsp mem.AccessRsp) {
+	f, err := os.OpenFile("./rdma.log", os.O_APPEND|os.O_RDWR, 0755)
+	if err != nil {
+		// Handle the error, such as creating the file if it doesn't exist
+		if os.IsNotExist(err) {
+			f, err = os.Create("rdma.log")
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	defer f.Close()
+	fmt.Fprintf(f, "##########################[Resolved Transaction]########################\n")
+	fmt.Fprintf(f, "[Src] =%10s\t[Dst]=%10s\t[Total Epoch]=%5f\n", rsp.Meta().Dst.Name(), rsp.Meta().Src.Name(), e.totalLatency)
+}
+
+func (e *Engine) writeFileRdma(transactions []transaction) {
+	f, err := os.OpenFile("./rdma.log", os.O_APPEND|os.O_RDWR, 0755)
+	if err != nil {
+		// Handle the error, such as creating the file if it doesn't exist
+		if os.IsNotExist(err) {
+			f, err = os.Create("rdma.log")
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	defer f.Close()
+	fmt.Fprintf(f, "+++++++++++++++++++++[Unresolved Transaction]++++++++++++++++\n")
+	for _, trans := range transactions {
+		fmt.Fprintf(f, "[SRC]=%10s\t[DST]=%10s\t[Addr]=%5d\t[ID]=%5s\n", trans.fromInside.Meta().Src.Name(), trans.toOutside.Meta().Dst.Name(), trans.addr, trans.fromInside.Meta().ID) //float
+	}
+}
+
+//ES
+func (e *Engine) writeFileGeneratedReq(req mem.AccessReq) {
+	f, err := os.OpenFile("./rdma.log", os.O_APPEND|os.O_RDWR, 0755)
+	if err != nil {
+		// Handle the error, such as creating the file if it doesn't exist
+		if os.IsNotExist(err) {
+			f, err = os.Create("rdma.log")
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			log.Fatal(err)
+		}
+	}
+
+	defer f.Close()
+	fmt.Fprintf(f, "************************Generated Transaction [In]*************************\n")
+	fmt.Fprintf(f, "[Send Time]=%5f\t[SRC]=%10s\t[DST]=%10s\t[Addr]=%5d\t[Byte Size]=%2d\t[ID]=%5s\n", req.Meta().SendTime,  req.Meta().Src.Name(), req.Meta().Dst.Name(),req.GetAddress(), req.GetByteSize(), req.Meta().ID) 
+}
+
+func (e *Engine) countRequestUsage(transactions []transaction) {
+	// Iterate over transactions
+	for _, trans := range transactions {
+		src := trans.fromInside.Meta().Src.Name()
+		dst := trans.toOutside.Meta().Dst.Name()
+		// Update src count
+		e.srcUsageCount[src]++
+		// Update dst count
+		e.dstUsageCount[dst]++
+	}
+
+	// Print src count
+	fmt.Println("Src occurrences:")
+	for src, count := range e.srcUsageCount {
+		fmt.Printf("%s: %d\n", src, count)
+	}
+
+	// Print dst count
+	fmt.Println("Dst occurrences:")
+	for dst, count := range e.dstUsageCount {
+		fmt.Printf("%s: %d\n", dst, count)
+	}
 }
 
 func (e *Engine) processFromCtrlPort(now sim.VTimeInSec) bool {
@@ -123,69 +208,6 @@ func (e *Engine) drainRDMA(now sim.VTimeInSec) bool {
 		return true
 	}
 	return false
-}
-//EUN
-func (e *Engine) writeFileRdmaFromInside(req mem.AccessRsp, epoch sim.VTimeInSec) {
-	f, err := os.OpenFile("rdma.log", os.O_APPEND|os.O_RDWR, 0755)
-        if err != nil {
-        // Handle the error, such as creating the file if it doesn't exist
-       	if os.IsNotExist(err) {
-        	f, err = os.Create("rdma.log")
-                        if err != nil {
-                        	log.Fatal(err)
-                        }
-             	} else {
-                	log.Fatal(err)
-                	}
-        }
-	defer f.Close()
-	fmt.Fprintf(f, "---------------------------------------[Transactions Resolved]-------------------------------------------\n")
-	fmt.Fprintf(f,"send time=%f\tsrc=\t%s\tdst=\t%s\tAddr= %s\tepoch time= %f\n\n",req.Meta().SendTime,req.Meta().Src.Name(),req.Meta().Dst.Name(),req.Meta().ID,epoch)
-}
-
-
-//ES
-func (e *Engine) countRequestUsage(trans transaction) {
-	src := trans.fromInside.Meta().Src.Name()
-	dst := trans.toOutside.Meta().Dst.Name()
-
-	// Count usage as src
-	if _, ok := e.srcUsageCount[src]; ok {
-		e.srcUsageCount[src]++
-	} else {
-		e.srcUsageCount[src] = 1
-	}
-
-	// Count usage as dst
-	if _, ok := e.dstUsageCount[dst]; ok {
-		e.dstUsageCount[dst]++
-	} else {
-		e.dstUsageCount[dst] = 1
-	}
-	 f, err := os.OpenFile("./rdma.log", os.O_APPEND|os.O_RDWR, 0755)
-                if err != nil {
-        // Handle the error, such as creating the file if it doesn't exist
-                        if os.IsNotExist(err) {
-                                f, err = os.Create("rdma.log")
-                                if err != nil {
-                                        log.Fatal(err)
-                                }
-                        } else {
-                                log.Fatal(err)
-                        }
-                }
-                defer f.Close()
-                fmt.Fprintf(f,"[Request Info]\n")
-                fmt.Fprintf(f,"Send time= %f\tsrc=\t%s\tdst=\t%s\tAddr= %d\n",trans.sendTime,trans.fromInside.Meta().Src.Name(),trans.toOutside.Meta().Dst.Name(),trans.addr)
-		fmt.Fprintf(f,"\n[SRC usage Count]\n")
-		for src, count := range e.srcUsageCount {
-			fmt.Fprintf(f,"[%s]: %d\n", src, count)
-		}
-		fmt.Fprintf(f,"\n[DST usage Count]\n")
-		for dst, count := range e.dstUsageCount {
-			fmt.Fprintf(f,"[%s]: %d\n", dst, count)
-		}
-
 }
 
 func (e *Engine) fullyDrained() bool {
@@ -257,7 +279,12 @@ func (e *Engine) processReqFromL1(
 	cloned.Meta().Src = e.ToOutside
 	cloned.Meta().Dst = dst
 	cloned.Meta().SendTime = now
-	e.transactionEpoch = now
+	if e.totalLatency != 0{
+		e.totalLatency = 0
+	}
+	e.totalLatency = now
+	e.requestQingDelay = now        //230706
+	e.writeFileGeneratedReq(cloned) //230709
 	err := e.ToOutside.Send(cloned)
 	if err == nil {
 		e.ToL1.Retrieve(now)
@@ -272,8 +299,10 @@ func (e *Engine) processReqFromL1(
 			addr: req.GetAddress(),
 		}
 		e.transactionsFromInside = append(e.transactionsFromInside, trans)
-		e.countRequestUsage(trans)
-
+		e.transactionsTotal = append(e.transactionsTotal, trans)
+		
+		e.writeFileRdma(e.transactionsFromInside)
+		e.countRequestUsage(e.transactionsTotal)
 		return true
 	}
 
@@ -290,8 +319,24 @@ func (e *Engine) processReqFromOutside(
 	cloned.Meta().Src = e.ToL2
 	cloned.Meta().Dst = dst
 	cloned.Meta().SendTime = now
+	
+	e.requestQingDelay = now - e.requestQingDelay //230706
+	f, err_file := os.OpenFile("./rdma.log", os.O_APPEND|os.O_RDWR, 0755)
+	if err_file != nil {
+		// Handle the error, such as creating the file if it doesn't exist
+		if os.IsNotExist(err_file) {
+			f, err_file = os.Create("rdma.log")
+			if err_file != nil {
+				log.Fatal(err_file)
+			}
+		} else {
+			log.Fatal(err_file)
+		}
+	}
 
-	e.transactionEpochRsp = now
+	defer f.Close()
+	fmt.Fprintf(f, "[ID]= %s\t[src]= %s\t[dst]= %s\t[Request Queuing]= %f\n", cloned.Meta().ID, cloned.Meta().Src.Name(), cloned.Meta().Dst.Name(), e.requestQingDelay)
+	//
 	err := e.ToL2.Send(cloned)
 	if err == nil {
 		e.ToOutside.Retrieve(now)
@@ -322,9 +367,24 @@ func (e *Engine) processRspFromL2(
 	rspToOutside.Meta().SendTime = now
 	rspToOutside.Meta().Src = e.ToOutside
 	rspToOutside.Meta().Dst = trans.fromOutside.Meta().Src
+	
+	e.l2Latency = now //230706
+	f, err_file := os.OpenFile("./rdma.log", os.O_APPEND|os.O_RDWR, 0755)
+	if err_file != nil {
+		// Handle the error, such as creating the file if it doesn't exist
+		if os.IsNotExist(err_file) {
+			f, err_file = os.Create("rdma.log")
+			if err_file != nil {
+				log.Fatal(err_file)
+			}
+		} else {
+			log.Fatal(err_file)
+		}
+	}
 
-	fmt.Printf("src= %s\t->dst= %s\n",rspToOutside.Meta().Src.Name(),rspToOutside.Meta().Dst.Name())
-	e.transactionEpoch = 0	
+	defer f.Close()
+	fmt.Fprintf(f, "[ID]= %s\t[src]= %s\t[dst]= %s\t[Rsp generated in L2]= %f\n", rspToOutside.Meta().ID, rspToOutside.Meta().Dst.Name(), rspToOutside.Meta().Src.Name(), now)
+	//
 	err := e.ToOutside.Send(rspToOutside)
 	if err == nil {
 		e.ToL2.Retrieve(now)
@@ -347,19 +407,27 @@ func (e *Engine) processRspFromOutside(
 	transactionIndex := e.findTransactionByRspToID(
 		rsp.GetRspTo(), e.transactionsFromInside)
 	trans := e.transactionsFromInside[transactionIndex]
-	trans.recvTime = now
-	
 	rspToInside := e.cloneRsp(rsp, trans.fromInside.Meta().ID)
 	rspToInside.Meta().SendTime = now
 	rspToInside.Meta().Src = e.ToL1
 	rspToInside.Meta().Dst = trans.fromInside.Meta().Src
-	
-	e.transactionEpoch = now - e.transactionEpoch
-	e.transactionEpochRsp = now - e.transactionEpochRsp
-	fmt.Printf("transaction epoch between 2 and 4= %f\n",e.transactionEpochRsp)
-	e.transactionEpochRsp = 0
-	e.writeFileRdmaFromInside(rspToInside,e.transactionEpoch)
-	e.transactionEpoch = 0
+	e.totalLatency = now - e.totalLatency //230706
+	e.l2Latency = now - e.l2Latency                  //230706
+	f, err_file := os.OpenFile("./rdma.log", os.O_APPEND|os.O_RDWR, 0755)
+	if err_file != nil {
+		// Handle the error, such as creating the file if it doesn't exist
+		if os.IsNotExist(err_file) {
+			f, err_file = os.Create("rdma.log")
+			if err_file != nil {
+				log.Fatal(err_file)
+			}
+		} else {
+			log.Fatal(err_file)
+		}
+	}
+	defer f.Close()
+	fmt.Fprintf(f, "[ID]= %s\t[src]= %s\t[dst]= %s\t[L2 Latency]= %f\n", rspToInside.Meta().ID, rspToInside.Meta().Dst.Name(), rspToInside.Meta().Src.Name(), e.l2Latency)
+	//
 	err := e.ToL1.Send(rspToInside)
 	if err == nil {
 		e.ToOutside.Retrieve(now)
@@ -370,6 +438,7 @@ func (e *Engine) processRspFromOutside(
 		e.transactionsFromInside =
 			append(e.transactionsFromInside[:transactionIndex],
 				e.transactionsFromInside[transactionIndex+1:]...)
+		e.writeFileResolvedRequest(rspToInside)
 		return true
 	}
 
@@ -464,6 +533,10 @@ func NewEngine(
 	e.localModules = localModules
 	e.RemoteRDMAAddressTable = remoteModules
 
+	e.totalLatency = 0
+	e.l2Latency         = 0
+	e.requestQingDelay  = 0
+	e.totalLatency      = 0
 	e.srcUsageCount = make(map[string]int)
 	e.dstUsageCount = make(map[string]int)
 	e.ToL1 = sim.NewLimitNumMsgPort(e, 1, name+".ToL1")
