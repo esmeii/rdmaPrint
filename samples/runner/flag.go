@@ -8,7 +8,7 @@ var maxInstCount = flag.Uint64("max-inst", 0,
 var parallelFlag = flag.Bool("parallel", false,
 	"Run the simulation in parallel.")
 var isaDebug = flag.Bool("debug-isa", false, "Generate the ISA debugging file.")
-
+var tlbCsv = flag.Bool("tlbcsv", false, "tlb csv")
 var verifyFlag = flag.Bool("verify", false, "Verify the emulation result.")
 var memTracing = flag.Bool("trace-mem", false, "Generate memory trace")
 var instCountReportFlag = flag.Bool("report-inst-count", false,
@@ -125,6 +125,7 @@ func (r *Runner) ParseFlag() *Runner {
 		r.ReportDRAMTransactionCount = true
 		r.ReportRDMATransactionCount = true
 		r.ReportCPIStack = true
+		r.ReportTlbCount = true
 	}
 
 	return r

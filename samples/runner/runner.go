@@ -31,6 +31,7 @@ type Runner struct {
 	kernelTimeCounter       *tracing.BusyTimeTracer
 	perGPUKernelTimeCounter []*tracing.BusyTimeTracer
 	instCountTracers        []instCountTracer
+	tlbCountTracers         []tlbCountTracer
 	cacheLatencyTracers     []cacheLatencyTracer
 	cacheHitRateTracers     []cacheHitRateTracer
 	tlbHitRateTracers       []tlbHitRateTracer
@@ -46,6 +47,7 @@ type Runner struct {
 	Verify                     bool
 	Parallel                   bool
 	ReportInstCount            bool
+	ReportTlbCount             bool
 	ReportCacheLatency         bool
 	ReportCacheHitRate         bool
 	ReportTLBHitRate           bool

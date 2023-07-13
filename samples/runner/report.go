@@ -25,6 +25,11 @@ type cacheHitRateTracer struct {
 	cache  TraceableComponent
 }
 
+//230713
+type tlbCountTracer struct {
+	tracer *tlbTracer
+	tlb    TraceableComponent
+}
 type tlbHitRateTracer struct {
 	tracer *tracing.StepCountTracer
 	tlb    TraceableComponent
@@ -56,6 +61,7 @@ func (r *Runner) defineMetrics() {
 	r.addMaxInstStopper()
 	r.addKernelTimeTracer()
 	r.addInstCountTracer()
+	r.addTlbCountTracer() //230713
 	r.addCUCPIHook()
 	r.addCacheLatencyTracer()
 	r.addCacheHitRateTracer()
@@ -101,6 +107,23 @@ func (r *Runner) addInstCountTracer() {
 					cu:     cu,
 				})
 			tracing.CollectTrace(cu.(tracing.NamedHookable), tracer)
+		}
+	}
+}
+func (r *Runner) addTlbCountTracer() {
+	if !r.ReportTlbCount {
+		return
+	}
+	for _, gpu := range r.platform.GPUs {
+		for _, tlb := range gpu.L1VTLBs {
+			csvTraceWriter := tracing.NewCSVTraceWriter("tlbTrace.csv")
+			tracer := newTlbTracer(csvTraceWriter)
+			r.tlbCountTracers = append(r.tlbCountTracers,
+				tlbCountTracer{
+					tracer: tracer,
+					tlb:    tlb,
+				})
+			tracing.CollectTrace(tlb.(tracing.NamedHookable), tracer)
 		}
 	}
 }
@@ -379,7 +402,6 @@ func (r *Runner) reportInstCount() {
 			t.cu.Name(), "simd_CPI", numCycle/float64(t.tracer.simdCount))
 	}
 }
-
 func (r *Runner) reportCPIStack() {
 	for _, t := range r.cuCPITraces {
 		cu := t.cu
@@ -467,6 +489,7 @@ func (r *Runner) reportCacheHitRate() {
 }
 
 func (r *Runner) reportTLBHitRate() {
+	allTransaction := uint64(0) ////230711
 	for _, tracer := range r.tlbHitRateTracers {
 		hit := tracer.tracer.GetStepCount("hit")
 		miss := tracer.tracer.GetStepCount("miss")
@@ -477,14 +500,18 @@ func (r *Runner) reportTLBHitRate() {
 		if totalTransaction == 0 {
 			continue
 		}
-
+		allTransaction = allTransaction + totalTransaction //230711
 		r.metricsCollector.Collect(
 			tracer.tlb.Name(), "hit", float64(hit))
 		r.metricsCollector.Collect(
 			tracer.tlb.Name(), "miss", float64(miss))
 		r.metricsCollector.Collect(
 			tracer.tlb.Name(), "mshr-hit", float64(mshrHit))
+		r.metricsCollector.Collect(
+			tracer.tlb.Name(), "Total Transaction", float64(totalTransaction)) //230711
 	}
+	r.metricsCollector.Collect( //230711
+		"TLB", "Total Transaction", float64(allTransaction))
 }
 
 func (r *Runner) reportRDMATransactionCount() {
